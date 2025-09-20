@@ -1,13 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:usage_stats/usage_stats.dart';
 
+import 'src/journal/journal_model.dart';
+import 'src/journal/journal_screen.dart';
+import 'src/journal/journal_service.dart';
+import 'src/notifications/notification_service.dart';
+import 'src/profile/profile_model.dart';
+import 'src/profile/profile_screen.dart';
+import 'src/profile/profile_service.dart';
 import 'util/data_list.dart';
 import 'widgets/category_list.dart';
 import 'widgets/goal_widget.dart';
 import 'widgets/total_time_card.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones();
+
+  // Init Hive
+  await Hive.initFlutter();
+
+  // Register Adapters
+  if (!Hive.isAdapterRegistered(0)) {
+    Hive.registerAdapter(JournalEntryAdapter());
+  }
+  if (!Hive.isAdapterRegistered(1)) {
+    Hive.registerAdapter(ProfileAdapter());
+  }
+
+  // Init services
+  await JournalService.init();
+  await ProfileService.init();
+  await NotificationService.init();
+
   runApp(const MyApp());
+}
+
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
 }
 
 class MyApp extends StatelessWidget {
@@ -15,15 +50,52 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: UsageStatsScreen());
+    return MaterialApp(
+      title: 'ProdWell',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: const MainScreen(),
+    );
   }
 }
 
+// -------------------- UsageStatsScreen --------------------
 class UsageStatsScreen extends StatefulWidget {
   const UsageStatsScreen({super.key});
 
   @override
   State<UsageStatsScreen> createState() => _UsageStatsScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = const [
+    UsageStatsScreen(),
+    JournalScreen(),
+    ProfileScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: "Overview",
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.book), label: "Journal"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+        ],
+        onTap: (index) {
+          setState(() => _selectedIndex = index);
+        },
+      ),
+    );
+  }
 }
 
 class _UsageStatsScreenState extends State<UsageStatsScreen> {
@@ -41,15 +113,12 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
           : ListView(
               padding: const EdgeInsets.all(0),
               children: [
-                SizedBox(height: 32),
-
+                const SizedBox(height: 32),
                 TotalTimeCard(
                   totalUsageMs: totalUsageMs,
                   categoryTotals: categoryTotals,
                   categoryColors: categoryColors,
                 ),
-
-                // Wrap ExpansionTile in a rounded container
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
@@ -64,14 +133,12 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
                     ],
                   ),
                   child: Theme(
-                    data: Theme.of(context).copyWith(
-                      dividerColor: Colors
-                          .transparent, // removes the default divider line
-                    ),
+                    data: Theme.of(
+                      context,
+                    ).copyWith(dividerColor: Colors.transparent),
                     child: ExpansionTile(
                       tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-                      collapsedBackgroundColor:
-                          Colors.transparent, // handled by container
+                      collapsedBackgroundColor: Colors.transparent,
                       backgroundColor: Colors.transparent,
                       textColor: Colors.blue.shade900,
                       iconColor: Colors.blue,
@@ -92,8 +159,8 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-                GoalWidget(),
+                const SizedBox(height: 16),
+                const GoalWidget(),
               ],
             ),
     );
@@ -120,12 +187,12 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
       DateTime endDate = DateTime.now();
       DateTime startDate = DateTime(endDate.year, endDate.month, endDate.day);
 
-      List<UsageInfo> usageStats = await UsageStats.queryUsageStats(
+      List<UsageInfo> stats = await UsageStats.queryUsageStats(
         startDate,
         endDate,
       );
 
-      final filteredStats = usageStats.where((info) {
+      final filteredStats = stats.where((info) {
         final pkg = info.packageName ?? "";
         final time = int.tryParse(info.totalTimeInForeground ?? "0") ?? 0;
         return time > 0 && usageWhitelist.containsKey(pkg);
@@ -134,10 +201,9 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
       Map<String, int> tempCategoryTotals = {};
       int totalMs = 0;
 
-      for (var info in usageStats) {
+      for (var info in stats) {
         final pkg = info.packageName ?? "";
         final time = int.tryParse(info.totalTimeInForeground ?? "0") ?? 0;
-
         if (time > 0 && usageWhitelist.containsKey(pkg)) {
           final category = usageWhitelist[pkg]!.category;
           tempCategoryTotals[category] =
@@ -149,8 +215,8 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
       setState(() {
         totalUsageMs = totalMs;
         categoryTotals = tempCategoryTotals;
-        message = usageStats.isEmpty ? "No usage data found" : "";
-        this.usageStats = filteredStats;
+        message = stats.isEmpty ? "No usage data found" : "";
+        usageStats = filteredStats;
       });
     } catch (e) {
       setState(() => message = "Error: $e");
