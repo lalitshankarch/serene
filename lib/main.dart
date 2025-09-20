@@ -68,6 +68,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
+        fontFamily: 'Inter',
         scaffoldBackgroundColor: AppColors.background,
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           selectedItemColor: AppColors.navSelected,
