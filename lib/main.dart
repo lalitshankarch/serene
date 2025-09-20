@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:serene/widgets/category_list.dart';
-import 'package:serene/widgets/total_time_card.dart';
 import 'package:usage_stats/usage_stats.dart';
 
 import 'util/data_list.dart';
+import 'widgets/category_list.dart';
+import 'widgets/goal_widget.dart';
+import 'widgets/total_time_card.dart';
 
 void main() {
   runApp(const MyApp());
@@ -34,35 +35,65 @@ class _UsageStatsScreenState extends State<UsageStatsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("App Usage Stats")),
+      appBar: null,
       body: message.isNotEmpty
           ? Center(child: Text(message))
           : ListView(
               padding: const EdgeInsets.all(0),
               children: [
+                SizedBox(height: 32),
+
                 TotalTimeCard(
                   totalUsageMs: totalUsageMs,
                   categoryTotals: categoryTotals,
                   categoryColors: categoryColors,
                 ),
-                const SizedBox(height: 8),
-                ExpansionTile(
-                  leading: const Icon(Icons.bar_chart_rounded),
-                  collapsedBackgroundColor: Colors.blue.shade50,
-                  backgroundColor: Colors.blue.shade50,
-                  textColor: Colors.blue.shade900,
-                  iconColor: Colors.blue,
-                  title: const Text("See Category Breakdown"),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: UsageByCategoryList(
-                        usageStats: usageStats,
-                        categoryColors: categoryColors,
+
+                // Wrap ExpansionTile in a rounded container
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.0),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
                       ),
+                    ],
+                  ),
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      dividerColor: Colors
+                          .transparent, // removes the default divider line
                     ),
-                  ],
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+                      collapsedBackgroundColor:
+                          Colors.transparent, // handled by container
+                      backgroundColor: Colors.transparent,
+                      textColor: Colors.blue.shade900,
+                      iconColor: Colors.blue,
+                      leading: const Icon(Icons.bar_chart_rounded),
+                      title: const Text("See Category Breakdown"),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0,
+                            vertical: 8.0,
+                          ),
+                          child: UsageByCategoryList(
+                            usageStats: usageStats,
+                            categoryColors: categoryColors,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
+                SizedBox(height: 16),
+                GoalWidget(),
               ],
             ),
     );
