@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:usage_stats/usage_stats.dart';
-
 import 'src/journal/journal_model.dart';
 import 'src/journal/journal_screen.dart';
 import 'src/journal/journal_service.dart';
@@ -14,6 +13,9 @@ import 'util/data_list.dart';
 import 'widgets/category_list.dart';
 import 'widgets/goal_widget.dart';
 import 'widgets/total_time_card.dart';
+import 'src/settings/settings_model.dart';
+import 'src/settings/settings_service.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,11 @@ Future<void> main() async {
     Hive.registerAdapter(ProfileAdapter());
   }
 
+  if (!Hive.isAdapterRegistered(2)) {
+    Hive.registerAdapter(SettingsAdapter());
+  }
+
+  await SettingsService.init();
   // Init services
   await JournalService.init();
   await ProfileService.init();
