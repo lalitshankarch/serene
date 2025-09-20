@@ -40,6 +40,14 @@ Future<void> main() async {
   await ProfileService.init();
   await NotificationService.init();
 
+  final settings = SettingsService.getSettings();
+  if (settings.dailyReminderEnabled) {
+    await NotificationService.scheduleDailyNotification(
+      settings.reminderHour,
+      settings.reminderMinute,
+    );
+  }
+
   runApp(const MyApp());
 }
 

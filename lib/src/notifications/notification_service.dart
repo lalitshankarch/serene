@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,10 +10,8 @@ class NotificationService {
   static final _notifications = FlutterLocalNotificationsPlugin();
 
   static Future<void> init() async {
-    // Android setup
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    // iOS setup
     const iosInit = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
@@ -30,18 +29,18 @@ class NotificationService {
     tz.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
 
-    // ✅ Handle notification permission
+    // Handle notification permission
     if (Platform.isAndroid) {
       final status = await Permission.notification.status;
       if (!status.isGranted) {
         final result = await Permission.notification.request();
-        debugPrint("🔔 Android Notification Permission: $result");
+        debugPrint("Android Notification Permission: $result");
       }
     } else if (Platform.isIOS) {
       final status = await Permission.notification.status;
       if (!status.isGranted) {
         final result = await Permission.notification.request();
-        debugPrint("🔔 iOS Notification Permission: $result");
+        debugPrint("iOS Notification Permission: $result");
       }
     }
   }
@@ -63,12 +62,12 @@ class NotificationService {
         ),
         iOS: DarwinNotificationDetails(),
       ),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time, // repeats daily
     );
-    debugPrint("✅ Scheduled notification for $hour:$minute daily");
+    debugPrint("Scheduled notification for $hour:$minute daily");
   }
 
   /// Helper to calculate next trigger time
@@ -86,11 +85,5 @@ class NotificationService {
       scheduled = scheduled.add(const Duration(days: 1));
     }
     return scheduled;
-  }
-
-  /// Cancel all scheduled notifications
-  static Future<void> cancelAll() async {
-    await _notifications.cancelAll();
-    debugPrint("🛑 All notifications cancelled");
   }
 }
