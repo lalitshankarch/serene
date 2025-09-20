@@ -2,7 +2,7 @@
 
 A smart digital wellbeing and mental health app.
 
-<img src="screenshot.jpg" alt="drawing" width="200"/>
+<img src="logo.png" alt="white heart shape below a white circle containing a blue checkmark, set against a blue gradient background, conveying a sense of calm and trust" width="100"/>
 
 ## Getting Started
 
