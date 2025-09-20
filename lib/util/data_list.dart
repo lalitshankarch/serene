@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
+import 'app_colors.dart';
 
 import 'app_info.dart';
 
-const Map<String, Color> categoryColors = {
-  "Social": Colors.blue,
-  "Productivity": Colors.green,
-  "Finance": Colors.orange,
-  "Entertainment": Colors.purple,
-  "Shopping": Colors.brown,
-  "Internet": Colors.pink,
-  "Utility": Colors.teal,
-};
+const Map<String, Color> categoryColors = AppColors.categoryColors;
 
 const Map<String, AppInfo> usageWhitelist = {
   // Social
@@ -106,7 +99,10 @@ const Map<String, AppInfo> usageWhitelist = {
   "com.microsoft.emmx": AppInfo(name: "Edge", category: "Internet"),
   "com.opera.browser": AppInfo(name: "Opera", category: "Internet"),
   "com.brave.browser": AppInfo(name: "Brave", category: "Internet"),
-  "com.sec.android.app.sbrowser": AppInfo(name: "Samsung Internet", category: "Internet"),
+  "com.sec.android.app.sbrowser": AppInfo(
+    name: "Samsung Internet",
+    category: "Internet",
+  ),
   "com.duckduckgo.mobile.android": AppInfo(
     name: "DuckDuckGo",
     category: "Internet",

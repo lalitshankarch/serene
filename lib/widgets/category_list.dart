@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:usage_stats/usage_stats.dart';
 
 import '../util/data_list.dart';
+import '../util/app_colors.dart';
 
 String _formatDuration(Duration d) {
   if (d.inSeconds < 60) return "${d.inSeconds}s";
@@ -73,7 +74,7 @@ class UsageByCategoryList extends StatelessWidget {
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: categoryColors[categoryName] ?? Colors.grey,
+                      color: categoryColors[categoryName] ?? AppColors.accentGrey,
                     ),
                   ),
                   Text(

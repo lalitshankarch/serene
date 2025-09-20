@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../util/app_colors.dart';
 
 String _formatDuration(Duration d) {
   if (d.inSeconds < 60) return "${d.inSeconds}s";
@@ -28,8 +29,15 @@ class TotalTimeCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: Colors.blue.shade50,
+              color: AppColors.cardBackground,
               borderRadius: BorderRadius.circular(12.0),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowColor,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,7 +47,7 @@ class TotalTimeCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black54,
+                    color: AppColors.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -48,7 +56,7 @@ class TotalTimeCard extends StatelessWidget {
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -65,7 +73,7 @@ class TotalTimeCard extends StatelessWidget {
                                 final index = mapEntry.key;
                                 final entry = mapEntry.value;
                                 final color =
-                                    categoryColors[entry.key] ?? Colors.grey;
+                                    categoryColors[entry.key] ?? AppColors.accentGrey;
                                 final fraction = entry.value / totalUsageMs;
 
                                 // Determine border radius
@@ -108,7 +116,7 @@ class TotalTimeCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black54,
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -118,7 +126,7 @@ class TotalTimeCard extends StatelessWidget {
                               ..sort((a, b) => b.value.compareTo(a.value)))
                             .map((entry) {
                               final color =
-                                  categoryColors[entry.key] ?? Colors.grey;
+                                  categoryColors[entry.key] ?? AppColors.accentGrey;
 
                               return Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -161,7 +169,7 @@ class TotalTimeCard extends StatelessWidget {
                 ] else ...[
                   const Text(
                     "No category data available",
-                    style: TextStyle(color: Colors.black45),
+                    style: TextStyle(color: AppColors.textTertiary),
                   ),
                 ],
               ],
